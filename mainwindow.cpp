@@ -6,31 +6,35 @@
 #include <QRandomGenerator>
 #include <QtEndian>
 
+#include <QSslSocket>
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , receiverIP("192.168.1.100")  // IP
-    , receiverPort(8888)           // ESP порт
+    , receiverIP("192.168.1.100")
+    , receiverPort(8888)
 {
     ui->setupUi(this);
 
+    // Инициализируем сетевой менеджер
+    networkManager = new QNetworkAccessManager(this);
+
+    // Привязываем кнопки к их обработчикам
     for (int i = 1; i <= 7; ++i) {
         QPushButton *button = findChild<QPushButton *>(QString("pushButton_%1").arg(i));
         if (button) {
             connect(button, &QPushButton::clicked, this, [this, i]() {
-                on_lampButton_clicked(i); // Передаём номер кнопки в общий слот
+                on_lampButton_clicked(i);
             });
         }
     }
 
-    SocketUPD = new QUdpSocket(this); // Объект для UDP
-    Port = 8888;
-    SocketUPD->bind(Port);
+    // Создаём UDP-сокет
+    SocketUPD = new QUdpSocket(this);
+    SocketUPD->bind(receiverPort);
 
     connect(SocketUPD, &QUdpSocket::readyRead, this, &MainWindow::onReadyRead);
-
-    //connect(ui->startButton, &QPushButton::clicked, this, &MainWindow::on_startButton_clicked);
-    //Уже подключено по дефолту
 }
 
 MainWindow::~MainWindow()
@@ -38,26 +42,29 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-// Функция генерации и отправки данных
+// Генерация и отправка случайной последовательности команд
 void MainWindow::startSending()
 {
     accumulatedData.clear();
     for (int i = 0; i < 10; ++i) {
-        int randomValue = QRandomGenerator::global()->bounded(1,8); // 2-9
+        int randomValue = QRandomGenerator::global()->bounded(1, 8);
         accumulatedData.append(QString::number(randomValue));
     }
 
-    sendCommand(); // Отправляем данные один раз
+    sendCommand();
 }
 
+// Отправка данных на ESP32
 void MainWindow::sendCommand()
 {
-    QByteArray datagram = accumulatedData.toUtf8(); // Конвертируем строку в QByteArray
-    QHostAddress receiverAddress(receiverIP);       // IP точки Wi-Fi (ESP)
+    QByteArray datagram = accumulatedData.toUtf8();
+    QHostAddress receiverAddress(receiverIP);
     SocketUPD->writeDatagram(datagram, receiverAddress, receiverPort);
-    qDebug() << "Отправил " << datagram;
+    qDebug() << "Отправил: " << datagram;
+    qDebug() << "SSL support available:" << QSslSocket::supportsSsl();
 }
 
+// Получение данных удара от ESP32
 void MainWindow::onReadyRead()
 {
     while (SocketUPD->hasPendingDatagrams()) {
@@ -65,7 +72,7 @@ void MainWindow::onReadyRead()
         datagram.resize(SocketUPD->pendingDatagramSize());
         SocketUPD->readDatagram(datagram.data(), datagram.size());
 
-        if (datagram.size() == 7) { // Проверяем размер пакета
+        if (datagram.size() == 7) {
             uint8_t lampNumber;
             uint16_t impact;
             float reactionTime;
@@ -79,80 +86,101 @@ void MainWindow::onReadyRead()
             qDebug() << "Сила удара:" << impact;
             qDebug() << "Время реакции:" << reactionTime;
 
-            // Обновляем текст кнопки
+            // Обновляем кнопку
             QPushButton *button = findChild<QPushButton *>(QString("pushButton_%1").arg(lampNumber));
             if (button) {
                 button->setText(QString("Сила удара: %1\nВремя: %2 сек")
                                     .arg(impact)
                                     .arg(reactionTime, 0, 'f', 2));
             }
+
+            // Отправляем данные в Firebase
+            sendToFirebase(lampNumber, impact, reactionTime);
         } else {
             qDebug() << "Неверный размер пакета!";
         }
     }
 }
 
+// Отправка данных в Firebase
+void MainWindow::sendToFirebase(int lampNumber, int impact, float reactionTime)
+{
+    qDebug() << "SSL support available:" << QSslSocket::supportsSsl();
+    qDebug() << "SSL library version:" << QSslSocket::sslLibraryVersionString();
+    qDebug() << "SSL library build version:" << QSslSocket::sslLibraryBuildVersionString();
+
+    QJsonObject json;
+    json["lamp"] = lampNumber;
+    json["impact"] = impact;
+    json["reaction_time"] = reactionTime;
+
+    QJsonDocument doc(json);
+    QByteArray jsonData = doc.toJson();
+
+    QNetworkRequest request(QUrl("https://boxtrain-65522-default-rtdb.firebaseio.com/data.json"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply *reply = networkManager->post(request, jsonData);
+    connect(reply, &QNetworkReply::finished, this, [reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "Данные успешно отправлены в Firebase!";
+        } else {
+            qDebug() << "Ошибка отправки в Firebase:" << reply->errorString();
+        }
+        reply->deleteLater();
+    });
+}
+
+// Запуск тренировки
 void MainWindow::on_start_training_Button_clicked()
 {
     if (trainingSequence.isEmpty()) {
-        qDebug() << "Попытка отправить пустую последовательность. Создайте тренировку.";
+        qDebug() << "Попытка отправить пустую последовательность.";
         return;
     }
 
-    // Формируем строку из последовательности
     QString dataString;
     for (int lamp : trainingSequence) {
-        dataString += QString::number(lamp); // Добавляем число в строку без разделителей
+        dataString += QString::number(lamp);
     }
 
-    // Конвертируем строку в байты для отправки
     QByteArray data = dataString.toUtf8();
-
-    // Проверяем корректность IP-адреса
     QHostAddress receiverAddress(receiverIP);
 
-    // Отправляем данные в Arduino
     if (SocketUPD->writeDatagram(data, receiverAddress, receiverPort) == -1) {
-        qDebug() << "Ошибка при отправке данных:" << SocketUPD->errorString();
+        qDebug() << "Ошибка отправки данных:" << SocketUPD->errorString();
     } else {
         qDebug() << "Отправлена последовательность:" << dataString;
-        qDebug() << "На адрес:" << receiverIP << ", порт:" << receiverPort;
     }
-
 }
 
-
+// Запись последовательности ламп в тренировке
 void MainWindow::on_create_training_Button_clicked()
 {
     if (!recordingMode) {
-        // Включаем режим записи
         recordingMode = true;
-        trainingSequence.clear(); // Очищаем список последовательности
-        //ui->statusLabel->setText("Режим записи: активен");
+        trainingSequence.clear();
         qDebug() << "Создание новой тренировки началось.";
     } else {
-        // Завершаем режим записи
         recordingMode = false;
-        //ui->statusLabel->setText("Режим записи: завершён");
-        qDebug() << "Создание тренировки завершено. Последовательность:" << trainingSequence;
+        qDebug() << "Создание тренировки завершено:" << trainingSequence;
     }
-
 }
 
-
+// Быстрая тренировка
 void MainWindow::on_fast_training_Button_clicked()
 {
-    qDebug("Start");
+    qDebug("Старт быстрой тренировки");
     startSending();
 }
 
+// Запись удара по лампе в тренировку
 void MainWindow::on_lampButton_clicked(int lampNumber)
 {
     if (recordingMode) {
-        trainingSequence.append(lampNumber); // Добавляем номер лампы в последовательность
+        trainingSequence.append(lampNumber);
         qDebug() << "Записано нажатие лампы:" << lampNumber;
 
-        // Обновляем текст кнопки для индикации
         QPushButton *button = findChild<QPushButton *>(QString("pushButton_%1").arg(lampNumber));
         if (button) {
             button->setText(QString("Лампа %1\nВыбрана").arg(lampNumber));

@@ -221,10 +221,41 @@ debug/moc_mainwindow.cpp: ../../mainwindow.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qtnetwork-config.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qabstractsocket.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qhostaddress.h \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/QTimer \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/qtimer.h \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/qbasictimer.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkAccessManager \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkaccessmanager.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkrequest.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QSharedDataPointer \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QString \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QUrl \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QVariant \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/QVector \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QObject \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QSslConfiguration \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslconfiguration.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslsocket.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qtcpsocket.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslerror.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslcertificate.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcryptographichash.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qssl.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QFlags \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QSslPreSharedKeyAuthenticator \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslpresharedkeyauthenticator.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QMetaType \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkRequest \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkReply \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkreply.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QIODevice \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QJsonDocument \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsondocument.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsonvalue.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcborvalue.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcborcommon.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qregularexpression.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/quuid.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QJsonObject \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsonobject.h \
 		debug/moc_predefs.h \
 		C:/Qt/5.15.2/mingw81_32/bin/moc.exe
 	C:\Qt\5.15.2\mingw81_32\bin\moc.exe $(DEFINES) --include C:/Users/Artem/Documents/Change_Data/build/Desktop_Qt_5_15_2_MinGW_32_bit-Debug/debug/moc_predefs.h -IC:/Qt/5.15.2/mingw81_32/mkspecs/win32-g++ -IC:/Users/Artem/Documents/Change_Data -IC:/Qt/5.15.2/mingw81_32/include -IC:/Qt/5.15.2/mingw81_32/include/QtWidgets -IC:/Qt/5.15.2/mingw81_32/include/QtGui -IC:/Qt/5.15.2/mingw81_32/include/QtANGLE -IC:/Qt/5.15.2/mingw81_32/include/QtNetwork -IC:/Qt/5.15.2/mingw81_32/include/QtCore -I. -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include/c++ -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include/c++/i686-w64-mingw32 -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include/c++/backward -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include -IC:/Qt/Tools/mingw810_32/lib/gcc/i686-w64-mingw32/8.1.0/include-fixed -IC:/Qt/Tools/mingw810_32/i686-w64-mingw32/include ..\..\mainwindow.h -o debug\moc_mainwindow.cpp
@@ -365,10 +396,41 @@ debug/main.o: ../../main.cpp ../../mainwindow.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qtnetwork-config.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qabstractsocket.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qhostaddress.h \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/QTimer \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/qtimer.h \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/qbasictimer.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkAccessManager \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkaccessmanager.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkrequest.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QSharedDataPointer \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QString \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QUrl \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QVariant \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/QVector \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QObject \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QSslConfiguration \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslconfiguration.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslsocket.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qtcpsocket.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslerror.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslcertificate.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcryptographichash.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qssl.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QFlags \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QSslPreSharedKeyAuthenticator \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslpresharedkeyauthenticator.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QMetaType \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkRequest \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkReply \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkreply.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QIODevice \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QJsonDocument \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsondocument.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsonvalue.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcborvalue.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcborcommon.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qregularexpression.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/quuid.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QJsonObject \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsonobject.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtWidgets/QApplication \
 		C:/Qt/5.15.2/mingw81_32/include/QtWidgets/qapplication.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcoreapplication.h \
@@ -491,10 +553,41 @@ debug/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qtnetwork-config.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qabstractsocket.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qhostaddress.h \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/QTimer \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/qtimer.h \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/qbasictimer.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkAccessManager \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkaccessmanager.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkrequest.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QSharedDataPointer \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QString \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QUrl \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QVariant \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/QVector \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QObject \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QSslConfiguration \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslconfiguration.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslsocket.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qtcpsocket.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslerror.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslcertificate.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcryptographichash.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qssl.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QFlags \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QSslPreSharedKeyAuthenticator \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qsslpresharedkeyauthenticator.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QMetaType \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkRequest \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QNetworkReply \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/qnetworkreply.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QIODevice \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QJsonDocument \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsondocument.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsonvalue.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcborvalue.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qcborcommon.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qregularexpression.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/quuid.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/QJsonObject \
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qjsonobject.h \
 		ui_mainwindow.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/QDebug \
 		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QHostAddress \
@@ -502,7 +595,8 @@ debug/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/qrandom.h \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/QtEndian \
 		C:/Qt/5.15.2/mingw81_32/include/QtCore/qendian.h \
-		C:/Qt/5.15.2/mingw81_32/include/QtCore/qfloat16.h
+		C:/Qt/5.15.2/mingw81_32/include/QtCore/qfloat16.h \
+		C:/Qt/5.15.2/mingw81_32/include/QtNetwork/QSslSocket
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\mainwindow.o ..\..\mainwindow.cpp
 
 debug/moc_mainwindow.o: debug/moc_mainwindow.cpp 
