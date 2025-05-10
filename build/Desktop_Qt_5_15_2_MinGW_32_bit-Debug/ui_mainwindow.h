@@ -33,6 +33,7 @@ public:
     QPushButton *fast_training_Button;
     QPushButton *start_training_Button;
     QPushButton *create_training_Button;
+    QPushButton *statistic_Button;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -69,14 +70,21 @@ public:
         fast_training_Button->setGeometry(QRect(370, 690, 260, 50));
         start_training_Button = new QPushButton(centralwidget);
         start_training_Button->setObjectName(QString::fromUtf8("start_training_Button"));
-        start_training_Button->setGeometry(QRect(370, 620, 260, 50));
+        start_training_Button->setEnabled(false);
+        start_training_Button->setGeometry(QRect(360, 430, 260, 50));
+        start_training_Button->setStyleSheet(QString::fromUtf8("background-color: rgba(255, 255, 255, 0);"));
         create_training_Button = new QPushButton(centralwidget);
         create_training_Button->setObjectName(QString::fromUtf8("create_training_Button"));
-        create_training_Button->setGeometry(QRect(370, 550, 260, 50));
+        create_training_Button->setEnabled(false);
+        create_training_Button->setGeometry(QRect(360, 350, 260, 50));
+        create_training_Button->setStyleSheet(QString::fromUtf8("background-color: rgba(255, 255, 255, 0);"));
+        statistic_Button = new QPushButton(centralwidget);
+        statistic_Button->setObjectName(QString::fromUtf8("statistic_Button"));
+        statistic_Button->setGeometry(QRect(370, 610, 261, 51));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 990, 25));
+        menubar->setGeometry(QRect(0, 0, 990, 21));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -89,7 +97,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Training", nullptr));
         pushButton_1->setText(QString());
         pushButton_2->setText(QString());
         pushButton_3->setText(QString());
@@ -97,9 +105,10 @@ public:
         pushButton_5->setText(QString());
         pushButton_6->setText(QString());
         pushButton_7->setText(QString());
-        fast_training_Button->setText(QCoreApplication::translate("MainWindow", "FAST TRAINING", nullptr));
-        start_training_Button->setText(QCoreApplication::translate("MainWindow", "START TRAINING", nullptr));
-        create_training_Button->setText(QCoreApplication::translate("MainWindow", "CREATE TRAINING", nullptr));
+        fast_training_Button->setText(QCoreApplication::translate("MainWindow", "\320\235\320\260\321\207\320\260\321\202\321\214  \321\202\321\200\320\265\320\275\320\270\321\200\320\276\320\262\320\272\321\203", nullptr));
+        start_training_Button->setText(QString());
+        create_training_Button->setText(QString());
+        statistic_Button->setText(QCoreApplication::translate("MainWindow", "\320\241\321\202\320\260\321\202\320\270\321\201\321\202\320\270\320\272\320\260", nullptr));
     } // retranslateUi
 
 };

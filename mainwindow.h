@@ -1,20 +1,28 @@
+// =============================
+// 📄 QT MainWindow.h для HTTP
+// =============================
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QUdpSocket>
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QTimer>
+#include <QVector>
+#include <QPainter>
+
+#include "logindialog.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
+struct SensorData {
+    quint16 impactForce;
+    quint16 reactionTime;
+};
+
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -22,28 +30,48 @@ public:
     ~MainWindow();
 
 private slots:
-    void startSending();
     void sendCommand();
-    void onReadyRead();
-    void sendToFirebase(int lampNumber, int impact, float reactionTime);
+    void startSending();
+    void pollESP();
 
     void on_start_training_Button_clicked();
     void on_create_training_Button_clicked();
     void on_fast_training_Button_clicked();
     void on_lampButton_clicked(int lampNumber);
 
+    void on_statistic_Button_clicked();
+
+    void onStatisticDataReceived(QNetworkReply *reply);
+
 private:
     Ui::MainWindow *ui;
-    QUdpSocket *SocketUPD;
     QNetworkAccessManager *networkManager;
+    QTimer *pollTimer;
 
-    QString receiverIP = "192.168.1.100";
-    quint16 receiverPort = 8888;
-    QString firebaseURL = "https://boxtrain-65522-default-rtdb.firebaseio.com/data.json";
+    int SendCount;
+    QString username;
 
     QString accumulatedData;
-    QList<int> trainingSequence;
+    QString receiverIP;
+    quint16 receiverPort;
+    QVector<SensorData> sensorDataArray;
     bool recordingMode = false;
+    QList<int> trainingSequence;
+
+    void resetButtonTexts();
+
+    void showStatisticWindow(const QString &statistics);
+
+    QVector<QJsonObject> m_currentTrainings;
+
+    void showStatisticWindowWithCharts(const QVector<QJsonObject> &trainings);
+    bool eventFilter(QObject *watched, QEvent *event) override;
+    void drawCharts(QPainter &painter, const QRect &rect);
+    void drawBarChart(QPainter &painter, const QRect &rect,
+                      const QVector<double> &values,
+                      const QString &title, const QColor &color);
+protected:
+    void paintStats(QPainter &painter, const QVector<QJsonObject> &trainings);
 };
 
 #endif // MAINWINDOW_H

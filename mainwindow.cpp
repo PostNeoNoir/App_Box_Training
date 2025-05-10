@@ -1,26 +1,57 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QDebug>
-#include <QHostAddress>
 #include <QRandomGenerator>
-#include <QtEndian>
+#include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPushButton>
+#include <QTimer>
+#include <QUrl>
+#include <QVBoxLayout>
+#include <QTextEdit>
+#include <QLabel>
+#include <QMessageBox>
 
-#include <QSslSocket>
 
+#include "logindialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , receiverIP("192.168.1.100")
-    , receiverPort(8888)
+    , receiverIP("192.168.4.1")
+    , receiverPort(80)
 {
     ui->setupUi(this);
 
-    // Инициализируем сетевой менеджер
     networkManager = new QNetworkAccessManager(this);
+    pollTimer = new QTimer(this);
 
-    // Привязываем кнопки к их обработчикам
+    logindialog logindialog(this);
+    if (logindialog.exec() == QDialog::Accepted) {
+        username = logindialog.getUsername();
+        qDebug() << "Пользователь:" << username;
+
+        QUrl url("http://" + receiverIP + "/login");
+        QNetworkRequest request(url);
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+        QJsonObject obj;
+        obj["username"] = username;
+        QJsonDocument doc(obj);
+        QByteArray data = doc.toJson();
+
+        QNetworkReply *reply = networkManager->post(request, data);
+        connect(reply, &QNetworkReply::finished, [reply]() {
+            qDebug() << "Ответ от ESP (login):" << reply->readAll();
+            reply->deleteLater();
+        });
+    }
+
     for (int i = 1; i <= 7; ++i) {
         QPushButton *button = findChild<QPushButton *>(QString("pushButton_%1").arg(i));
         if (button) {
@@ -30,160 +61,383 @@ MainWindow::MainWindow(QWidget *parent)
         }
     }
 
-    // Создаём UDP-сокет
-    SocketUPD = new QUdpSocket(this);
-    SocketUPD->bind(receiverPort);
+    connect(pollTimer, &QTimer::timeout, this, &MainWindow::pollESP);
 
-    connect(SocketUPD, &QUdpSocket::readyRead, this, &MainWindow::onReadyRead);
+    resetButtonTexts();
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete ui;
 }
 
-// Генерация и отправка случайной последовательности команд
-void MainWindow::startSending()
-{
+void MainWindow::resetButtonTexts() {
+    for (int i = 1; i <= 7; ++i) {
+        QPushButton *btn = findChild<QPushButton *>(QString("pushButton_%1").arg(i));
+        if (btn) {
+            btn->setText(QString("Зона %1").arg(i));
+        }
+    }
+}
+
+void MainWindow::startSending() {
     accumulatedData.clear();
     for (int i = 0; i < 10; ++i) {
         int randomValue = QRandomGenerator::global()->bounded(1, 8);
         accumulatedData.append(QString::number(randomValue));
     }
-
     sendCommand();
 }
 
-// Отправка данных на ESP32
-void MainWindow::sendCommand()
-{
-    QByteArray datagram = accumulatedData.toUtf8();
-    QHostAddress receiverAddress(receiverIP);
-    SocketUPD->writeDatagram(datagram, receiverAddress, receiverPort);
-    qDebug() << "Отправил: " << datagram;
-    qDebug() << "SSL support available:" << QSslSocket::supportsSsl();
-}
-
-// Получение данных удара от ESP32
-void MainWindow::onReadyRead()
-{
-    while (SocketUPD->hasPendingDatagrams()) {
-        QByteArray datagram;
-        datagram.resize(SocketUPD->pendingDatagramSize());
-        SocketUPD->readDatagram(datagram.data(), datagram.size());
-
-        if (datagram.size() == 7) {
-            uint8_t lampNumber;
-            uint16_t impact;
-            float reactionTime;
-
-            // Распаковываем данные
-            memcpy(&lampNumber, datagram.data(), sizeof(lampNumber));
-            memcpy(&impact, datagram.data() + sizeof(lampNumber), sizeof(impact));
-            memcpy(&reactionTime, datagram.data() + sizeof(lampNumber) + sizeof(impact), sizeof(reactionTime));
-
-            qDebug() << "Лампа:" << lampNumber;
-            qDebug() << "Сила удара:" << impact;
-            qDebug() << "Время реакции:" << reactionTime;
-
-            // Обновляем кнопку
-            QPushButton *button = findChild<QPushButton *>(QString("pushButton_%1").arg(lampNumber));
-            if (button) {
-                button->setText(QString("Сила удара: %1\nВремя: %2 сек")
-                                    .arg(impact)
-                                    .arg(reactionTime, 0, 'f', 2));
-            }
-
-            // Отправляем данные в Firebase
-            sendToFirebase(lampNumber, impact, reactionTime);
-        } else {
-            qDebug() << "Неверный размер пакета!";
-        }
-    }
-}
-
-// Отправка данных в Firebase
-void MainWindow::sendToFirebase(int lampNumber, int impact, float reactionTime)
-{
-    qDebug() << "SSL support available:" << QSslSocket::supportsSsl();
-    qDebug() << "SSL library version:" << QSslSocket::sslLibraryVersionString();
-    qDebug() << "SSL library build version:" << QSslSocket::sslLibraryBuildVersionString();
-
-    QJsonObject json;
-    json["lamp"] = lampNumber;
-    json["impact"] = impact;
-    json["reaction_time"] = reactionTime;
-
-    QJsonDocument doc(json);
-    QByteArray jsonData = doc.toJson();
-
-    QNetworkRequest request(QUrl("https://boxtrain-65522-default-rtdb.firebaseio.com/data.json"));
+void MainWindow::sendCommand() {
+    QUrl url("http://" + receiverIP + "/sequence");
+    QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    QNetworkReply *reply = networkManager->post(request, jsonData);
-    connect(reply, &QNetworkReply::finished, this, [reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Данные успешно отправлены в Firebase!";
-        } else {
-            qDebug() << "Ошибка отправки в Firebase:" << reply->errorString();
-        }
+    QJsonObject obj;
+    obj["username"] = username;
+    obj["sequence"] = accumulatedData;
+    QJsonDocument doc(obj);
+    QByteArray data = doc.toJson();
+
+    QNetworkReply *reply = networkManager->post(request, data);
+
+    connect(reply, &QNetworkReply::finished, [reply]() {
+        qDebug() << "Ответ от ESP:" << reply->readAll();
         reply->deleteLater();
+    });
+
+    pollTimer->start(1000);
+}
+
+void MainWindow::pollESP() {
+    QUrl url("http://" + receiverIP + "/result?username=" + username);
+    QNetworkRequest request(url);
+
+    qDebug() << "URL для запроса:" << url.toString();
+
+    QNetworkReply *reply = networkManager->get(request);
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
+        QByteArray response = reply->readAll();
+        reply->deleteLater();
+
+        qDebug() << "Ответ от ESP:" << response;
+
+        QJsonDocument doc = QJsonDocument::fromJson(response);
+        if (!doc.isArray()) {
+            qDebug() << "Ошибка: Ожидаем массив данных";
+            return;
+        }
+
+        QJsonArray trainings = doc.array();
+        if (trainings.isEmpty()) {
+            qDebug() << "Ошибка: Пустой массив данных";
+            return;
+        }
+
+        QJsonArray innerArray = trainings.last().toArray();
+        if (innerArray.isEmpty()) {
+            qDebug() << "Ошибка: Внутренний массив пуст";
+            return;
+        }
+
+        QJsonObject zoneData = innerArray.first().toObject();
+        resetButtonTexts();
+
+        for (int i = 1; i <= 7; ++i) {
+            QString zoneKey = QString("zone%1").arg(i);
+            QPushButton *button = findChild<QPushButton *>(QString("pushButton_%1").arg(i));
+            if (!button) continue;
+
+            if (zoneData.contains(zoneKey)) {
+                QJsonObject zone = zoneData[zoneKey].toObject();
+                int impact = zone["impact"].toInt();
+                double time = zone["time"].toDouble();
+
+                button->setText(QString("Сила: %1\nВремя: %2с").arg(impact).arg(time, 0, 'f', 2));
+                button->setStyleSheet("background-color: #45a049;");
+
+                QTimer::singleShot(500, this, [button]() {
+                    button->setStyleSheet("");  // Сброс цвета
+                });
+
+                qDebug() << "Зона" << i << "-> Сила:" << impact << "Время:" << time;
+            }
+        }
     });
 }
 
-// Запуск тренировки
-void MainWindow::on_start_training_Button_clicked()
-{
+
+
+
+
+
+
+
+void MainWindow::on_start_training_Button_clicked() {
+    resetButtonTexts();
     if (trainingSequence.isEmpty()) {
-        qDebug() << "Попытка отправить пустую последовательность.";
+        qDebug() << "Попытка отправить пустую последовательность. Создайте тренировку.";
         return;
     }
 
-    QString dataString;
+    accumulatedData.clear();
     for (int lamp : trainingSequence) {
-        dataString += QString::number(lamp);
+        accumulatedData += QString::number(lamp);
     }
-
-    QByteArray data = dataString.toUtf8();
-    QHostAddress receiverAddress(receiverIP);
-
-    if (SocketUPD->writeDatagram(data, receiverAddress, receiverPort) == -1) {
-        qDebug() << "Ошибка отправки данных:" << SocketUPD->errorString();
-    } else {
-        qDebug() << "Отправлена последовательность:" << dataString;
-    }
+    sendCommand();
 }
 
-// Запись последовательности ламп в тренировке
-void MainWindow::on_create_training_Button_clicked()
-{
+void MainWindow::on_create_training_Button_clicked() {
     if (!recordingMode) {
         recordingMode = true;
         trainingSequence.clear();
+        resetButtonTexts();
         qDebug() << "Создание новой тренировки началось.";
     } else {
         recordingMode = false;
-        qDebug() << "Создание тренировки завершено:" << trainingSequence;
+        qDebug() << "Создание тренировки завершено. Последовательность:" << trainingSequence;
     }
 }
 
-// Быстрая тренировка
-void MainWindow::on_fast_training_Button_clicked()
-{
-    qDebug("Старт быстрой тренировки");
+void MainWindow::on_fast_training_Button_clicked() {
+    resetButtonTexts();
+    qDebug("Быстрая тренировка запущена");
     startSending();
 }
 
-// Запись удара по лампе в тренировку
-void MainWindow::on_lampButton_clicked(int lampNumber)
-{
+void MainWindow::on_lampButton_clicked(int lampNumber) {
     if (recordingMode) {
         trainingSequence.append(lampNumber);
         qDebug() << "Записано нажатие лампы:" << lampNumber;
-
         QPushButton *button = findChild<QPushButton *>(QString("pushButton_%1").arg(lampNumber));
         if (button) {
             button->setText(QString("Лампа %1\nВыбрана").arg(lampNumber));
         }
     }
 }
+
+void MainWindow::on_statistic_Button_clicked() {
+    QUrl url("http://" + receiverIP + "/readfile?username=" + username);
+    QNetworkRequest request(url);
+
+    qDebug() << "URL для запроса:" << url.toString();
+
+    QNetworkReply *reply = networkManager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        QByteArray response = reply->readAll();
+        reply->deleteLater();
+
+        qDebug() << "Ответ от ESP (сырой):" << response;
+
+        // Проверяем, что ответ начинается с '[' (массив)
+        if (response.isEmpty() || response.at(0) != '[') {
+            qDebug() << "Ошибка: Ожидался JSON массив";
+            return;
+        }
+
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
+
+        if (parseError.error != QJsonParseError::NoError) {
+            qDebug() << "Ошибка парсинга JSON:" << parseError.errorString();
+            return;
+        }
+
+        if (!doc.isArray()) {
+            qDebug() << "Ошибка: Ожидался массив JSON";
+            return;
+        }
+
+        QJsonArray trainingArray = doc.array();
+        QVector<QJsonObject> userTrainings;
+
+        // Фильтруем только тренировки текущего пользователя
+        for (const QJsonValue &value : trainingArray) {
+            if (!value.isObject()) continue;
+
+            QJsonObject training = value.toObject();
+            if (training["username"].toString() == username) {
+                userTrainings.append(training);
+            }
+        }
+
+        if (userTrainings.isEmpty()) {
+            QMessageBox::information(this, "Статистика",
+                                     "Нет данных о тренировках для пользователя " + username);
+            return;
+        }
+
+        // Создаем окно статистики с графиками
+        showStatisticWindowWithCharts(userTrainings);
+    });
+}
+
+
+void MainWindow::onStatisticDataReceived(QNetworkReply *reply) {
+    QByteArray responseData = reply->readAll();
+
+    // Преобразуем байтовый ответ в строку, используя правильную кодировку UTF-8
+    QString responseStr = QString::fromUtf8(responseData);
+
+    // Преобразуем экранированные байты в символы
+    responseStr = QByteArray::fromPercentEncoding(responseStr.toUtf8());
+
+    // Преобразуем строку в JSON-документ
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(responseStr.toUtf8());
+
+    if (jsonDoc.isNull()) {
+        qDebug() << "Ошибка: Не удалось разобрать JSON!";
+        return;
+    }
+
+    // Если это массив, продолжаем обработку
+    if (jsonDoc.isArray()) {
+        QJsonArray jsonArray = jsonDoc.array();
+
+        for (const QJsonValue &value : jsonArray) {
+            QJsonObject stats = value.toObject();
+            qDebug() << stats["username"].toString();
+
+            // Выводим или сохраняем данные статистики
+            QJsonObject zones = stats["zones"].toObject();
+            for (auto zoneKey : zones.keys()) {
+                QJsonObject zone = zones[zoneKey].toObject();
+                qDebug() << "Zone: " << zoneKey
+                         << ", Impact: " << zone["impact"].toInt()
+                         << ", Time: " << zone["time"].toDouble();
+            }
+        }
+    } else {
+        qDebug() << "Ошибка: Ожидался массив, но получен объект.";
+    }
+}
+
+
+
+
+
+
+
+void MainWindow::showStatisticWindowWithCharts(const QVector<QJsonObject> &trainings)
+{
+    // Создаем окно
+    QDialog *statsDialog = new QDialog(this);
+    statsDialog->setWindowTitle("Статистика тренировок - " + username);
+    statsDialog->resize(800, 600);
+
+    // Создаем виджет для отрисовки графиков
+    QWidget *chartsWidget = new QWidget(statsDialog);
+    chartsWidget->setAttribute(Qt::WA_DeleteOnClose);
+
+    // Переопределяем paintEvent для отрисовки графиков
+    chartsWidget->installEventFilter(this);
+    m_currentTrainings = trainings; // Сохраняем данные для отрисовки
+
+    QVBoxLayout *layout = new QVBoxLayout(statsDialog);
+    layout->addWidget(chartsWidget);
+
+    statsDialog->exec();
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::Paint && !m_currentTrainings.isEmpty()) {
+        QWidget *chartsWidget = qobject_cast<QWidget*>(watched);
+        if (chartsWidget) {
+            QPainter painter(chartsWidget);
+            drawCharts(painter, chartsWidget->rect());
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(watched, event);
+}
+
+void MainWindow::drawCharts(QPainter &painter, const QRect &rect)
+{
+    painter.fillRect(rect, Qt::white);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    // Рассчитываем статистику
+    QVector<double> avgImpacts(7, 0), avgTimes(7, 0);
+    QVector<int> counts(7, 0);
+
+    for (const auto &training : m_currentTrainings) {
+        QJsonObject zones = training["zones"].toObject();
+        for (int i = 1; i <= 7; ++i) {
+            QString zoneKey = QString("zone%1").arg(i);
+            if (zones.contains(zoneKey)) {
+                QJsonObject zone = zones[zoneKey].toObject();
+                avgImpacts[i-1] += zone["impact"].toDouble();
+                avgTimes[i-1] += zone["time"].toDouble();
+                counts[i-1]++;
+            }
+        }
+    }
+
+    // Нормализуем данные
+    for (int i = 0; i < 7; ++i) {
+        if (counts[i] > 0) {
+            avgImpacts[i] /= counts[i];
+            avgTimes[i] /= counts[i];
+        }
+    }
+
+    // Рисуем график силы удара (верхняя половина)
+    QRect impactRect(rect.x(), rect.y(), rect.width(), rect.height()/2 - 10);
+    drawBarChart(painter, impactRect, avgImpacts, "Средняя сила удара", QColor(65, 105, 225));
+
+    // Рисуем график времени (нижняя половина)
+    QRect timeRect(rect.x(), rect.y() + rect.height()/2 + 10,
+                   rect.width(), rect.height()/2 - 10);
+    drawBarChart(painter, timeRect, avgTimes, "Среднее время реакции (сек)", QColor(60, 179, 113));
+}
+
+void MainWindow::drawBarChart(QPainter &painter, const QRect &rect,
+                              const QVector<double> &values,
+                              const QString &title, const QColor &color)
+{
+    // Находим максимальное значение для масштабирования
+    double maxValue = *std::max_element(values.begin(), values.end());
+    if (maxValue == 0) maxValue = 1;
+
+    // Рисуем заголовок
+    painter.setPen(Qt::black);
+    painter.drawText(rect, Qt::AlignTop | Qt::AlignHCenter, title);
+
+    // Область для графика
+    QRect chartRect = rect.adjusted(40, 30, -20, -30);
+
+    // Рисуем оси
+    painter.drawLine(chartRect.bottomLeft(), chartRect.bottomRight());
+    painter.drawLine(chartRect.bottomLeft(), chartRect.topLeft());
+
+    // Рисуем столбцы
+    int barWidth = chartRect.width() / values.size();
+    painter.setBrush(color);
+
+    for (int i = 0; i < values.size(); ++i) {
+        if (values[i] == 0) continue;
+
+        int barHeight = (values[i] / maxValue) * chartRect.height();
+        QRect barRect(
+            chartRect.left() + i * barWidth + 5,
+            chartRect.bottom() - barHeight,
+            barWidth - 10,
+            barHeight
+            );
+
+        painter.drawRect(barRect);
+
+        // Подписи значений
+        painter.drawText(barRect, Qt::AlignCenter, QString::number(values[i], 'f', 2));
+
+        // Подписи зон
+        painter.drawText(
+            QRect(chartRect.left() + i * barWidth, chartRect.bottom() + 5, barWidth, 20),
+            Qt::AlignHCenter | Qt::AlignTop,
+            QString("Зона %1").arg(i+1)
+            );
+    }
+}
+

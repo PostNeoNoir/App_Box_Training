@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Training</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="pushButton_1">
@@ -115,33 +115,58 @@
      </rect>
     </property>
     <property name="text">
-     <string>FAST TRAINING</string>
+     <string>Начать  тренировку</string>
     </property>
    </widget>
    <widget class="QPushButton" name="start_training_Button">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>620</y>
+      <x>360</x>
+      <y>430</y>
       <width>260</width>
       <height>50</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
     <property name="text">
-     <string>START TRAINING</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="create_training_Button">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>550</y>
+      <x>360</x>
+      <y>350</y>
       <width>260</width>
       <height>50</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
     <property name="text">
-     <string>CREATE TRAINING</string>
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="statistic_Button">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>610</y>
+      <width>261</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Статистика</string>
     </property>
    </widget>
   </widget>
@@ -151,7 +176,7 @@
      <x>0</x>
      <y>0</y>
      <width>990</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

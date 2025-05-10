@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[13];
-    char stringdata0[216];
+    QByteArrayData data[14];
+    char stringdata0[250];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,27 +33,29 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
-QT_MOC_LITERAL(1, 11, 12), // "startSending"
-QT_MOC_LITERAL(2, 24, 0), // ""
-QT_MOC_LITERAL(3, 25, 11), // "sendCommand"
-QT_MOC_LITERAL(4, 37, 11), // "onReadyRead"
-QT_MOC_LITERAL(5, 49, 14), // "sendToFirebase"
-QT_MOC_LITERAL(6, 64, 10), // "lampNumber"
-QT_MOC_LITERAL(7, 75, 6), // "impact"
-QT_MOC_LITERAL(8, 82, 12), // "reactionTime"
-QT_MOC_LITERAL(9, 95, 32), // "on_start_training_Button_clicked"
-QT_MOC_LITERAL(10, 128, 33), // "on_create_training_Button_cli..."
-QT_MOC_LITERAL(11, 162, 31), // "on_fast_training_Button_clicked"
-QT_MOC_LITERAL(12, 194, 21) // "on_lampButton_clicked"
+QT_MOC_LITERAL(1, 11, 11), // "sendCommand"
+QT_MOC_LITERAL(2, 23, 0), // ""
+QT_MOC_LITERAL(3, 24, 12), // "startSending"
+QT_MOC_LITERAL(4, 37, 7), // "pollESP"
+QT_MOC_LITERAL(5, 45, 32), // "on_start_training_Button_clicked"
+QT_MOC_LITERAL(6, 78, 33), // "on_create_training_Button_cli..."
+QT_MOC_LITERAL(7, 112, 31), // "on_fast_training_Button_clicked"
+QT_MOC_LITERAL(8, 144, 21), // "on_lampButton_clicked"
+QT_MOC_LITERAL(9, 166, 10), // "lampNumber"
+QT_MOC_LITERAL(10, 177, 27), // "on_statistic_Button_clicked"
+QT_MOC_LITERAL(11, 205, 23), // "onStatisticDataReceived"
+QT_MOC_LITERAL(12, 229, 14), // "QNetworkReply*"
+QT_MOC_LITERAL(13, 244, 5) // "reply"
 
     },
-    "MainWindow\0startSending\0\0sendCommand\0"
-    "onReadyRead\0sendToFirebase\0lampNumber\0"
-    "impact\0reactionTime\0"
-    "on_start_training_Button_clicked\0"
+    "MainWindow\0sendCommand\0\0startSending\0"
+    "pollESP\0on_start_training_Button_clicked\0"
     "on_create_training_Button_clicked\0"
     "on_fast_training_Button_clicked\0"
-    "on_lampButton_clicked"
+    "on_lampButton_clicked\0lampNumber\0"
+    "on_statistic_Button_clicked\0"
+    "onStatisticDataReceived\0QNetworkReply*\0"
+    "reply"
 };
 #undef QT_MOC_LITERAL
 
@@ -63,7 +65,7 @@ static const uint qt_meta_data_MainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -71,24 +73,26 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   54,    2, 0x08 /* Private */,
-       3,    0,   55,    2, 0x08 /* Private */,
-       4,    0,   56,    2, 0x08 /* Private */,
-       5,    3,   57,    2, 0x08 /* Private */,
-       9,    0,   64,    2, 0x08 /* Private */,
-      10,    0,   65,    2, 0x08 /* Private */,
-      11,    0,   66,    2, 0x08 /* Private */,
-      12,    1,   67,    2, 0x08 /* Private */,
+       1,    0,   59,    2, 0x08 /* Private */,
+       3,    0,   60,    2, 0x08 /* Private */,
+       4,    0,   61,    2, 0x08 /* Private */,
+       5,    0,   62,    2, 0x08 /* Private */,
+       6,    0,   63,    2, 0x08 /* Private */,
+       7,    0,   64,    2, 0x08 /* Private */,
+       8,    1,   65,    2, 0x08 /* Private */,
+      10,    0,   68,    2, 0x08 /* Private */,
+      11,    1,   69,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Float,    6,    7,    8,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    6,
+    QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 12,   13,
 
        0        // eod
 };
@@ -99,14 +103,15 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         auto *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->startSending(); break;
-        case 1: _t->sendCommand(); break;
-        case 2: _t->onReadyRead(); break;
-        case 3: _t->sendToFirebase((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< float(*)>(_a[3]))); break;
-        case 4: _t->on_start_training_Button_clicked(); break;
-        case 5: _t->on_create_training_Button_clicked(); break;
-        case 6: _t->on_fast_training_Button_clicked(); break;
-        case 7: _t->on_lampButton_clicked((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 0: _t->sendCommand(); break;
+        case 1: _t->startSending(); break;
+        case 2: _t->pollESP(); break;
+        case 3: _t->on_start_training_Button_clicked(); break;
+        case 4: _t->on_create_training_Button_clicked(); break;
+        case 5: _t->on_fast_training_Button_clicked(); break;
+        case 6: _t->on_lampButton_clicked((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->on_statistic_Button_clicked(); break;
+        case 8: _t->onStatisticDataReceived((*reinterpret_cast< QNetworkReply*(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -141,13 +146,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 9;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 9)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 8;
+        _id -= 9;
     }
     return _id;
 }
