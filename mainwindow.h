@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QVector>
 #include <QPainter>
+#include <QTextEdit> // Добавьте в начале файла
 
 #include "logindialog.h"
 
@@ -16,6 +17,25 @@
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+
+
+// Добавьте перед классом MainWindow
+struct ZoneStats {
+    int totalImpact = 0;
+    double totalTime = 0.0;
+    int count = 0;
+};
+
+struct ZoneAnalysis {
+    QString message;
+    bool needsAttention = false;
+};
+
+struct TrainingAnalysis {
+    QVector<ZoneAnalysis> zones;
+    QString overallMessage;
+};
 
 struct SensorData {
     quint16 impactForce;
@@ -70,6 +90,11 @@ private:
     void drawBarChart(QPainter &painter, const QRect &rect,
                       const QVector<double> &values,
                       const QString &title, const QColor &color);
+    void requestUserTypeAndStartTraining();
+    void generateTrainingSequence(const QString &userType);
+
+    TrainingAnalysis analyzeTraining(const QVector<QJsonObject> &trainings);
+
 protected:
     void paintStats(QPainter &painter, const QVector<QJsonObject> &trainings);
 };
